@@ -166,17 +166,17 @@ app.use(express.json({ limit: "5mb" }));
 app.use(morgan('combined'));
 
 // Serve static files from the 'public' directory with proper MIME types
-app.use(express.static(path.join(__dirname, 'public'), {
-  setHeaders: (res, path) => {
-    if (path.endsWith('.js')) {
-      res.setHeader('Content-Type', 'application/javascript');
-    } else if (path.endsWith('.mjs')) {
-      res.setHeader('Content-Type', 'application/javascript');
-    } else if (path.endsWith('.css')) {
-      res.setHeader('Content-Type', 'text/css');
-    }
-  }
-}));
+// app.use(express.static(path.join(__dirname, 'public'), {
+//   setHeaders: (res, path) => {
+//     if (path.endsWith('.js')) {
+//       res.setHeader('Content-Type', 'application/javascript');
+//     } else if (path.endsWith('.mjs')) {
+//       res.setHeader('Content-Type', 'application/javascript');
+//     } else if (path.endsWith('.css')) {
+//       res.setHeader('Content-Type', 'text/css');
+//     }
+//   }
+// }));
 
 // Create storage directory if it doesn't exist
 const storagePath = path.join(__dirname, 'storage');
@@ -2026,9 +2026,9 @@ io.on('connection', (socket) => {
 });
 
 // Catch-all route for SPA routing
-app.get(/^(?!\/api).*/, (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
+// app.get(/^(?!\/api).*/, (req, res) => {
+//   res.sendFile(path.join(__dirname, 'public', 'index.html'));
+// });
 
 export { app, pool };
 
