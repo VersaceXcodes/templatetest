@@ -1,0 +1,764 @@
+asyncapi: 2.0.0
+info:
+  title: LibyaStay Realtime Events
+  version: 1.0.0
+  description: Realtime events for LibyaStay - Airbnb-style accommodation platform for Libya
+  contact:
+    name: LibyaStay Engineering Team
+servers:
+  development:
+    url: http://localhost:3000
+    protocol: ws
+channels:
+  user/created:
+    publish:
+      summary: A new user has been created
+      message:
+        $ref: "#/components/messages/UserCreated"
+  user/updated:
+    publish:
+      summary: User profile has been updated
+      message:
+        $ref: "#/components/messages/UserUpdated"
+  user/deleted:
+    publish:
+      summary: A user has been deleted
+      message:
+        $ref: "#/components/messages/UserDeleted"
+  property/created:
+    publish:
+      summary: A new property listing has been created
+      message:
+        $ref: "#/components/messages/PropertyCreated"
+  property/updated:
+    publish:
+      summary: A property listing has been updated
+      message:
+        $ref: "#/components/messages/PropertyUpdated"
+  property/deleted:
+    publish:
+      summary: A property listing has been deleted
+      message:
+        $ref: "#/components/messages/PropertyDeleted"
+  property_photo/created:
+    publish:
+      summary: A new property photo has been added
+      message:
+        $ref: "#/components/messages/PropertyPhotoCreated"
+  property_photo/updated:
+    publish:
+      summary: A property photo has been updated
+      message:
+        $ref: "#/components/messages/PropertyPhotoUpdated"
+  property_photo/deleted:
+    publish:
+      summary: A property photo has been deleted
+      message:
+        $ref: "#/components/messages/PropertyPhotoDeleted"
+  property_availability/created:
+    publish:
+      summary: A new property availability date has been added
+      message:
+        $ref: "#/components/messages/PropertyAvailabilityCreated"
+  property_availability/updated:
+    publish:
+      summary: A property availability date has been updated
+      message:
+        $ref: "#/components/messages/PropertyAvailabilityUpdated"
+  property_availability/deleted:
+    publish:
+      summary: A property availability date has been deleted
+      message:
+        $ref: "#/components/messages/PropertyAvailabilityDeleted"
+  booking/created:
+    publish:
+      summary: A new booking has been created
+      message:
+        $ref: "#/components/messages/BookingCreated"
+  booking/updated:
+    publish:
+      summary: A booking has been updated
+      message:
+        $ref: "#/components/messages/BookingUpdated"
+  booking/deleted:
+    publish:
+      summary: A booking has been deleted
+      message:
+        $ref: "#/components/messages/BookingDeleted"
+  conversation/created:
+    publish:
+      summary: A new conversation has been created
+      message:
+        $ref: "#/components/messages/ConversationCreated"
+  conversation/updated:
+    publish:
+      summary: A conversation has been updated
+      message:
+        $ref: "#/components/messages/ConversationUpdated"
+  message/created:
+    publish:
+      summary: A new message has been sent
+      message:
+        $ref: "#/components/messages/MessageCreated"
+  message/updated:
+    publish:
+      summary: A message has been updated
+      message:
+        $ref: "#/components/messages/MessageUpdated"
+  review/created:
+    publish:
+      summary: A new review has been created
+      message:
+        $ref: "#/components/messages/ReviewCreated"
+  review/updated:
+    publish:
+      summary: A review has been updated
+      message:
+        $ref: "#/components/messages/ReviewUpdated"
+  review/deleted:
+    publish:
+      summary: A review has been deleted
+      message:
+        $ref: "#/components/messages/ReviewDeleted"
+  review_photo/created:
+    publish:
+      summary: A new review photo has been added
+      message:
+        $ref: "#/components/messages/ReviewPhotoCreated"
+  review_photo/updated:
+    publish:
+      summary: A review photo has been updated
+      message:
+        $ref: "#/components/messages/ReviewPhotoUpdated"
+  review_photo/deleted:
+    publish:
+      summary: A review photo has been deleted
+      message:
+        $ref: "#/components/messages/ReviewPhotoDeleted"
+  notification/created:
+    publish:
+      summary: A new notification has been created
+      message:
+        $ref: "#/components/messages/NotificationCreated"
+  notification/updated:
+    publish:
+      summary: A notification has been updated
+      message:
+        $ref: "#/components/messages/NotificationUpdated"
+  search_filters/updated:
+    publish:
+      summary: Search filters have been updated
+      message:
+        $ref: "#/components/messages/SearchFiltersUpdated"
+  booking_cart/updated:
+    publish:
+      summary: Booking cart has been updated
+      message:
+        $ref: "#/components/messages/BookingCartUpdated"
+  user_role/updated:
+    publish:
+      summary: User role has been updated
+      message:
+        $ref: "#/components/messages/UserRoleUpdated"
+  notification_count/updated:
+    publish:
+      summary: Notification count has been updated
+      message:
+        $ref: "#/components/messages/NotificationCountUpdated"
+components:
+  messages:
+    UserCreated:
+      payload:
+        $ref: "#/components/schemas/UserPayload"
+    UserUpdated:
+      payload:
+        $ref: "#/components/schemas/UserPayload"
+    UserDeleted:
+      payload:
+        type: object
+        properties:
+          user_id:
+            type: string
+        required:
+          - user_id
+    PropertyCreated:
+      payload:
+        $ref: "#/components/schemas/PropertyPayload"
+    PropertyUpdated:
+      payload:
+        $ref: "#/components/schemas/PropertyPayload"
+    PropertyDeleted:
+      payload:
+        type: object
+        properties:
+          property_id:
+            type: string
+        required:
+          - property_id
+    PropertyPhotoCreated:
+      payload:
+        $ref: "#/components/schemas/PropertyPhotoPayload"
+    PropertyPhotoUpdated:
+      payload:
+        $ref: "#/components/schemas/PropertyPhotoPayload"
+    PropertyPhotoDeleted:
+      payload:
+        type: object
+        properties:
+          photo_id:
+            type: string
+        required:
+          - photo_id
+    PropertyAvailabilityCreated:
+      payload:
+        $ref: "#/components/schemas/PropertyAvailabilityPayload"
+    PropertyAvailabilityUpdated:
+      payload:
+        $ref: "#/components/schemas/PropertyAvailabilityPayload"
+    PropertyAvailabilityDeleted:
+      payload:
+        type: object
+        properties:
+          availability_id:
+            type: string
+        required:
+          - availability_id
+    BookingCreated:
+      payload:
+        $ref: "#/components/schemas/BookingPayload"
+    BookingUpdated:
+      payload:
+        $ref: "#/components/schemas/BookingPayload"
+    BookingDeleted:
+      payload:
+        type: object
+        properties:
+          booking_id:
+            type: string
+        required:
+          - booking_id
+    ConversationCreated:
+      payload:
+        $ref: "#/components/schemas/ConversationPayload"
+    ConversationUpdated:
+      payload:
+        $ref: "#/components/schemas/ConversationPayload"
+    MessageCreated:
+      payload:
+        $ref: "#/components/schemas/MessagePayload"
+    MessageUpdated:
+      payload:
+        $ref: "#/components/schemas/MessagePayload"
+    ReviewCreated:
+      payload:
+        $ref: "#/components/schemas/ReviewPayload"
+    ReviewUpdated:
+      payload:
+        $ref: "#/components/schemas/ReviewPayload"
+    ReviewDeleted:
+      payload:
+        type: object
+        properties:
+          review_id:
+            type: string
+        required:
+          - review_id
+    ReviewPhotoCreated:
+      payload:
+        $ref: "#/components/schemas/ReviewPhotoPayload"
+    ReviewPhotoUpdated:
+      payload:
+        $ref: "#/components/schemas/ReviewPhotoPayload"
+    ReviewPhotoDeleted:
+      payload:
+        type: object
+        properties:
+          photo_id:
+            type: string
+        required:
+          - photo_id
+    NotificationCreated:
+      payload:
+        $ref: "#/components/schemas/NotificationPayload"
+    NotificationUpdated:
+      payload:
+        $ref: "#/components/schemas/NotificationPayload"
+    SearchFiltersUpdated:
+      payload:
+        $ref: "#/components/schemas/SearchFiltersPayload"
+    BookingCartUpdated:
+      payload:
+        $ref: "#/components/schemas/BookingCartPayload"
+    UserRoleUpdated:
+      payload:
+        $ref: "#/components/schemas/UserRolePayload"
+    NotificationCountUpdated:
+      payload:
+        $ref: "#/components/schemas/NotificationCountPayload"
+  schemas:
+    UserPayload:
+      type: object
+      properties:
+        user_id:
+          type: string
+        email:
+          type: string
+          format: email
+        phone_number:
+          type: string
+        name:
+          type: string
+        profile_picture_url:
+          type: string
+          nullable: true
+        bio:
+          type: string
+          nullable: true
+        emergency_contact_name:
+          type: string
+          nullable: true
+        emergency_contact_phone:
+          type: string
+          nullable: true
+        role:
+          type: string
+        is_verified:
+          type: boolean
+        verification_document_url:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+        - user_id
+        - email
+        - phone_number
+        - name
+        - role
+        - is_verified
+        - created_at
+        - updated_at
+    PropertyPayload:
+      type: object
+      properties:
+        property_id:
+          type: string
+        host_id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        city:
+          type: string
+        neighborhood:
+          type: string
+          nullable: true
+        address:
+          type: string
+          nullable: true
+        latitude:
+          type: number
+          nullable: true
+        longitude:
+          type: number
+          nullable: true
+        property_type:
+          type: string
+        guest_capacity:
+          type: integer
+        bedrooms:
+          type: integer
+        beds:
+          type: integer
+        bathrooms:
+          type: integer
+        amenities:
+          type: string
+          nullable: true
+        base_price_per_night:
+          type: number
+        currency:
+          type: string
+        has_power_backup:
+          type: boolean
+        has_water_tank:
+          type: boolean
+        house_rules:
+          type: string
+          nullable: true
+        cancellation_policy:
+          type: string
+        instant_book:
+          type: boolean
+        is_active:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+        - property_id
+        - host_id
+        - title
+        - description
+        - city
+        - property_type
+        - guest_capacity
+        - bedrooms
+        - beds
+        - bathrooms
+        - base_price_per_night
+        - currency
+        - has_power_backup
+        - has_water_tank
+        - cancellation_policy
+        - instant_book
+        - is_active
+        - created_at
+        - updated_at
+    PropertyPhotoPayload:
+      type: object
+      properties:
+        photo_id:
+          type: string
+        property_id:
+          type: string
+        photo_url:
+          type: string
+        caption:
+          type: string
+          nullable: true
+        display_order:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+      required:
+        - photo_id
+        - property_id
+        - photo_url
+        - display_order
+        - created_at
+    PropertyAvailabilityPayload:
+      type: object
+      properties:
+        availability_id:
+          type: string
+        property_id:
+          type: string
+        date:
+          type: string
+          format: date-time
+        is_available:
+          type: boolean
+        price_override:
+          type: number
+          nullable: true
+      required:
+        - availability_id
+        - property_id
+        - date
+        - is_available
+    BookingPayload:
+      type: object
+      properties:
+        booking_id:
+          type: string
+        property_id:
+          type: string
+        guest_id:
+          type: string
+        host_id:
+          type: string
+        check_in:
+          type: string
+          format: date-time
+        check_out:
+          type: string
+          format: date-time
+        guest_count:
+          type: integer
+        total_price:
+          type: number
+        service_fee:
+          type: number
+        special_requests:
+          type: string
+          nullable: true
+        status:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+        - booking_id
+        - property_id
+        - guest_id
+        - host_id
+        - check_in
+        - check_out
+        - guest_count
+        - total_price
+        - service_fee
+        - status
+        - created_at
+        - updated_at
+    ConversationPayload:
+      type: object
+      properties:
+        conversation_id:
+          type: string
+        booking_id:
+          type: string
+        guest_id:
+          type: string
+        host_id:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+        - conversation_id
+        - booking_id
+        - guest_id
+        - host_id
+        - created_at
+        - updated_at
+    MessagePayload:
+      type: object
+      properties:
+        message_id:
+          type: string
+        conversation_id:
+          type: string
+        sender_id:
+          type: string
+        content:
+          type: string
+        is_read:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+      required:
+        - message_id
+        - conversation_id
+        - sender_id
+        - content
+        - is_read
+        - created_at
+    ReviewPayload:
+      type: object
+      properties:
+        review_id:
+          type: string
+        booking_id:
+          type: string
+        property_id:
+          type: string
+        reviewer_id:
+          type: string
+        host_id:
+          type: string
+        cleanliness_rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        accuracy_rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        communication_rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        location_rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        check_in_rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        value_rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        overall_rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        comment:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+        - review_id
+        - booking_id
+        - property_id
+        - reviewer_id
+        - host_id
+        - cleanliness_rating
+        - accuracy_rating
+        - communication_rating
+        - location_rating
+        - check_in_rating
+        - value_rating
+        - overall_rating
+        - created_at
+        - updated_at
+    ReviewPhotoPayload:
+      type: object
+      properties:
+        photo_id:
+          type: string
+        review_id:
+          type: string
+        photo_url:
+          type: string
+        caption:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+      required:
+        - photo_id
+        - review_id
+        - photo_url
+        - created_at
+    NotificationPayload:
+      type: object
+      properties:
+        notification_id:
+          type: string
+        user_id:
+          type: string
+        type:
+          type: string
+        title:
+          type: string
+        message:
+          type: string
+        related_entity_type:
+          type: string
+          nullable: true
+        related_entity_id:
+          type: string
+          nullable: true
+        is_read:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+      required:
+        - notification_id
+        - user_id
+        - type
+        - title
+        - message
+        - is_read
+        - created_at
+    SearchFiltersPayload:
+      type: object
+      properties:
+        location:
+          type: string
+          nullable: true
+        check_in:
+          type: string
+          nullable: true
+        check_out:
+          type: string
+          nullable: true
+        guest_count:
+          type: integer
+          nullable: true
+        price_min:
+          type: number
+          nullable: true
+        price_max:
+          type: number
+          nullable: true
+        property_types:
+          type: array
+          items:
+            type: string
+        amenities:
+          type: array
+          items:
+            type: string
+        sort_by:
+          type: string
+      required:
+        - location
+        - check_in
+        - check_out
+        - guest_count
+        - price_min
+        - price_max
+        - property_types
+        - amenities
+        - sort_by
+    BookingCartPayload:
+      type: object
+      properties:
+        listing_id:
+          type: string
+          nullable: true
+        check_in:
+          type: string
+          nullable: true
+        check_out:
+          type: string
+          nullable: true
+        guest_count:
+          type: integer
+          nullable: true
+        special_requests:
+          type: string
+          nullable: true
+      required:
+        - listing_id
+        - check_in
+        - check_out
+        - guest_count
+        - special_requests
+    UserRolePayload:
+      type: object
+      properties:
+        role:
+          type: string
+          enum:
+            - traveler
+            - host
+            - admin
+            - both
+            - null
+      required:
+        - role
+    NotificationCountPayload:
+      type: object
+      properties:
+        unread_count:
+          type: integer
+      required:
+        - unread_count

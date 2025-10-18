@@ -1,0 +1,2052 @@
+openapi: 3.0.0
+info:
+  title: LibyaStay API
+  description: User-facing API for LibyaStay - Airbnb-style accommodation platform for Libya
+  version: 1.0.0
+servers:
+  - url: http://localhost:3000/api
+  - url: https://api.libyastay.com
+paths:
+  /auth/register:
+    post:
+      summary: Register a new user
+      operationId: registerUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateUserInput"
+      responses:
+        "201":
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    $ref: "#/components/schemas/User"
+                  token:
+                    type: string
+                    description: JWT authentication token
+        "400":
+          description: Invalid input
+        "409":
+          description: User already exists
+  /auth/login:
+    post:
+      summary: Login user
+      operationId: loginUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+              required:
+                - email
+                - password
+      responses:
+        "200":
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    $ref: "#/components/schemas/User"
+                  token:
+                    type: string
+                    description: JWT authentication token
+        "400":
+          description: Invalid credentials
+        "401":
+          description: Unauthorized
+  /auth/logout:
+    post:
+      summary: Logout user
+      operationId: logoutUser
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Logout successful
+        "401":
+          description: Unauthorized
+  /users/{user_id}:
+    get:
+      summary: Get user profile
+      operationId: getUserProfile
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: User profile retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "404":
+          description: User not found
+    patch:
+      summary: Update user profile
+      operationId: updateUserProfile
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateUserInput"
+      responses:
+        "200":
+          description: User profile updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "400":
+          description: Invalid input
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: User not found
+  /users/{user_id}/listings:
+    get:
+      summary: Get user's property listings
+      operationId: getUserListings
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: User listings retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Property"
+        "404":
+          description: User not found
+  /users/{user_id}/bookings:
+    get:
+      summary: Get user's bookings
+      operationId: getUserBookings
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - pending
+              - confirmed
+              - cancelled
+              - completed
+      responses:
+        "200":
+          description: User bookings retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Booking"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: User not found
+  /users/{user_id}/reviews:
+    get:
+      summary: Get user's reviews
+      operationId: getUserReviews
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: User reviews retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Review"
+        "404":
+          description: User not found
+  /properties:
+    get:
+      summary: Search properties
+      operationId: searchProperties
+      parameters:
+        - name: location
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: check_in
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+        - name: check_out
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+        - name: guests
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: price_min
+          in: query
+          required: false
+          schema:
+            type: number
+        - name: price_max
+          in: query
+          required: false
+          schema:
+            type: number
+        - name: property_type
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: amenities
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: sort_by
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - price_low_to_high
+              - price_high_to_low
+              - rating_high_to_low
+              - newest
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 10
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
+      responses:
+        "200":
+          description: Properties retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  properties:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Property"
+                  total_count:
+                    type: integer
+        "400":
+          description: Invalid search parameters
+    post:
+      summary: Create property listing
+      operationId: createProperty
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreatePropertyInput"
+      responses:
+        "201":
+          description: Property created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Property"
+        "400":
+          description: Invalid input
+        "401":
+          description: Unauthorized
+  /properties/{property_id}:
+    get:
+      summary: Get property details
+      operationId: getProperty
+      parameters:
+        - name: property_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Property details retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Property"
+        "404":
+          description: Property not found
+    patch:
+      summary: Update property listing
+      operationId: updateProperty
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: property_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdatePropertyInput"
+      responses:
+        "200":
+          description: Property updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Property"
+        "400":
+          description: Invalid input
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Property not found
+    delete:
+      summary: Delete property listing
+      operationId: deleteProperty
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: property_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Property deleted successfully
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Property not found
+  /properties/{property_id}/photos:
+    get:
+      summary: Get property photos
+      operationId: getPropertyPhotos
+      parameters:
+        - name: property_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Property photos retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PropertyPhoto"
+        "404":
+          description: Property not found
+    post:
+      summary: Add property photo
+      operationId: addPropertyPhoto
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: property_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreatePropertyPhotoInput"
+      responses:
+        "201":
+          description: Property photo added successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PropertyPhoto"
+        "400":
+          description: Invalid input
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Property not found
+  /properties/{property_id}/photos/{photo_id}:
+    patch:
+      summary: Update property photo
+      operationId: updatePropertyPhoto
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: property_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: photo_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdatePropertyPhotoInput"
+      responses:
+        "200":
+          description: Property photo updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PropertyPhoto"
+        "400":
+          description: Invalid input
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Property photo not found
+    delete:
+      summary: Delete property photo
+      operationId: deletePropertyPhoto
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: property_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: photo_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Property photo deleted successfully
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Property photo not found
+  /properties/{property_id}/availability:
+    get:
+      summary: Get property availability
+      operationId: getPropertyAvailability
+      parameters:
+        - name: property_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: start_date
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+        - name: end_date
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+      responses:
+        "200":
+          description: Property availability retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PropertyAvailability"
+        "404":
+          description: Property not found
+    post:
+      summary: Set property availability
+      operationId: setPropertyAvailability
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: property_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreatePropertyAvailabilityInput"
+      responses:
+        "201":
+          description: Property availability set successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PropertyAvailability"
+        "400":
+          description: Invalid input
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Property not found
+  /properties/{property_id}/reviews:
+    get:
+      summary: Get property reviews
+      operationId: getPropertyReviews
+      parameters:
+        - name: property_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Property reviews retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Review"
+        "404":
+          description: Property not found
+  /bookings:
+    get:
+      summary: Search bookings
+      operationId: searchBookings
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: property_id
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: guest_id
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: host_id
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - pending
+              - confirmed
+              - cancelled
+              - completed
+        - name: start_date
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+        - name: end_date
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 10
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
+      responses:
+        "200":
+          description: Bookings retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  bookings:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Booking"
+                  total_count:
+                    type: integer
+        "400":
+          description: Invalid search parameters
+        "401":
+          description: Unauthorized
+    post:
+      summary: Create booking
+      operationId: createBooking
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateBookingInput"
+      responses:
+        "201":
+          description: Booking created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Booking"
+        "400":
+          description: Invalid input
+        "401":
+          description: Unauthorized
+  /bookings/{booking_id}:
+    get:
+      summary: Get booking details
+      operationId: getBooking
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: booking_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Booking details retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Booking"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Booking not found
+    patch:
+      summary: Update booking
+      operationId: updateBooking
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: booking_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateBookingInput"
+      responses:
+        "200":
+          description: Booking updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Booking"
+        "400":
+          description: Invalid input
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Booking not found
+  /bookings/{booking_id}/reviews:
+    post:
+      summary: Create review for booking
+      operationId: createReview
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: booking_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateReviewInput"
+      responses:
+        "201":
+          description: Review created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Review"
+        "400":
+          description: Invalid input
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Booking not found
+  /conversations:
+    get:
+      summary: Get user conversations
+      operationId: getUserConversations
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 10
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
+      responses:
+        "200":
+          description: Conversations retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Conversation"
+        "401":
+          description: Unauthorized
+  /conversations/{conversation_id}:
+    get:
+      summary: Get conversation details
+      operationId: getConversation
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: conversation_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Conversation details retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Conversation"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Conversation not found
+  /conversations/{conversation_id}/messages:
+    get:
+      summary: Get conversation messages
+      operationId: getConversationMessages
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: conversation_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 20
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
+      responses:
+        "200":
+          description: Messages retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Message"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Conversation not found
+    post:
+      summary: Send message in conversation
+      operationId: sendMessage
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: conversation_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateMessageInput"
+      responses:
+        "201":
+          description: Message sent successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Message"
+        "400":
+          description: Invalid input
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Conversation not found
+  /messages/{message_id}:
+    patch:
+      summary: Update message (mark as read)
+      operationId: updateMessage
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: message_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateMessageInput"
+      responses:
+        "200":
+          description: Message updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Message"
+        "400":
+          description: Invalid input
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Message not found
+  /notifications:
+    get:
+      summary: Get user notifications
+      operationId: getUserNotifications
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: is_read
+          in: query
+          required: false
+          schema:
+            type: boolean
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 10
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
+      responses:
+        "200":
+          description: Notifications retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Notification"
+        "401":
+          description: Unauthorized
+  /notifications/{notification_id}:
+    patch:
+      summary: Update notification (mark as read)
+      operationId: updateNotification
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: notification_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateNotificationInput"
+      responses:
+        "200":
+          description: Notification updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Notification"
+        "400":
+          description: Invalid input
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "404":
+          description: Notification not found
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    User:
+      type: object
+      properties:
+        user_id:
+          type: string
+        email:
+          type: string
+          format: email
+        phone_number:
+          type: string
+        password_hash:
+          type: string
+        name:
+          type: string
+        profile_picture_url:
+          type: string
+          nullable: true
+        bio:
+          type: string
+          nullable: true
+        emergency_contact_name:
+          type: string
+          nullable: true
+        emergency_contact_phone:
+          type: string
+          nullable: true
+        role:
+          type: string
+        is_verified:
+          type: boolean
+        verification_document_url:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+        - user_id
+        - email
+        - phone_number
+        - password_hash
+        - name
+        - role
+        - is_verified
+        - created_at
+        - updated_at
+    CreateUserInput:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          maxLength: 255
+        phone_number:
+          type: string
+          maxLength: 20
+        password_hash:
+          type: string
+          minLength: 8
+          maxLength: 255
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        profile_picture_url:
+          type: string
+          format: uri
+          nullable: true
+        bio:
+          type: string
+          maxLength: 1000
+          nullable: true
+        emergency_contact_name:
+          type: string
+          maxLength: 100
+          nullable: true
+        emergency_contact_phone:
+          type: string
+          maxLength: 20
+          nullable: true
+        role:
+          type: string
+          enum:
+            - guest
+            - host
+            - admin
+        is_verified:
+          type: boolean
+        verification_document_url:
+          type: string
+          format: uri
+          nullable: true
+      required:
+        - email
+        - phone_number
+        - password_hash
+        - name
+        - role
+    UpdateUserInput:
+      type: object
+      properties:
+        user_id:
+          type: string
+        email:
+          type: string
+          format: email
+          maxLength: 255
+        phone_number:
+          type: string
+          maxLength: 20
+        password_hash:
+          type: string
+          minLength: 8
+          maxLength: 255
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        profile_picture_url:
+          type: string
+          format: uri
+          nullable: true
+        bio:
+          type: string
+          maxLength: 1000
+          nullable: true
+        emergency_contact_name:
+          type: string
+          maxLength: 100
+          nullable: true
+        emergency_contact_phone:
+          type: string
+          maxLength: 20
+          nullable: true
+        role:
+          type: string
+          enum:
+            - guest
+            - host
+            - admin
+        is_verified:
+          type: boolean
+        verification_document_url:
+          type: string
+          format: uri
+          nullable: true
+      required:
+        - user_id
+    Property:
+      type: object
+      properties:
+        property_id:
+          type: string
+        host_id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        city:
+          type: string
+        neighborhood:
+          type: string
+          nullable: true
+        address:
+          type: string
+          nullable: true
+        latitude:
+          type: number
+          nullable: true
+        longitude:
+          type: number
+          nullable: true
+        property_type:
+          type: string
+        guest_capacity:
+          type: integer
+        bedrooms:
+          type: integer
+        beds:
+          type: integer
+        bathrooms:
+          type: integer
+        amenities:
+          type: string
+          nullable: true
+        base_price_per_night:
+          type: number
+        currency:
+          type: string
+        has_power_backup:
+          type: boolean
+        has_water_tank:
+          type: boolean
+        house_rules:
+          type: string
+          nullable: true
+        cancellation_policy:
+          type: string
+        instant_book:
+          type: boolean
+        is_active:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+        - property_id
+        - host_id
+        - title
+        - description
+        - city
+        - property_type
+        - guest_capacity
+        - bedrooms
+        - beds
+        - bathrooms
+        - base_price_per_night
+        - currency
+        - has_power_backup
+        - has_water_tank
+        - cancellation_policy
+        - instant_book
+        - is_active
+        - created_at
+        - updated_at
+    CreatePropertyInput:
+      type: object
+      properties:
+        host_id:
+          type: string
+          minLength: 1
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+        description:
+          type: string
+          minLength: 1
+          maxLength: 2000
+        city:
+          type: string
+          minLength: 1
+          maxLength: 100
+        neighborhood:
+          type: string
+          maxLength: 100
+          nullable: true
+        address:
+          type: string
+          maxLength: 255
+          nullable: true
+        latitude:
+          type: number
+          nullable: true
+        longitude:
+          type: number
+          nullable: true
+        property_type:
+          type: string
+          minLength: 1
+          maxLength: 50
+        guest_capacity:
+          type: integer
+          minimum: 1
+        bedrooms:
+          type: integer
+          minimum: 0
+        beds:
+          type: integer
+          minimum: 1
+        bathrooms:
+          type: integer
+          minimum: 1
+        amenities:
+          type: string
+          maxLength: 1000
+          nullable: true
+        base_price_per_night:
+          type: number
+          minimum: 0
+        currency:
+          type: string
+          minLength: 3
+          maxLength: 3
+          default: LYD
+        has_power_backup:
+          type: boolean
+          default: false
+        has_water_tank:
+          type: boolean
+          default: false
+        house_rules:
+          type: string
+          maxLength: 1000
+          nullable: true
+        cancellation_policy:
+          type: string
+          enum:
+            - flexible
+            - moderate
+            - strict
+        instant_book:
+          type: boolean
+          default: false
+        is_active:
+          type: boolean
+          default: true
+      required:
+        - host_id
+        - title
+        - description
+        - city
+        - property_type
+        - guest_capacity
+        - bedrooms
+        - beds
+        - bathrooms
+        - base_price_per_night
+    UpdatePropertyInput:
+      type: object
+      properties:
+        property_id:
+          type: string
+        host_id:
+          type: string
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+        description:
+          type: string
+          minLength: 1
+          maxLength: 2000
+        city:
+          type: string
+          minLength: 1
+          maxLength: 100
+        neighborhood:
+          type: string
+          maxLength: 100
+          nullable: true
+        address:
+          type: string
+          maxLength: 255
+          nullable: true
+        latitude:
+          type: number
+          nullable: true
+        longitude:
+          type: number
+          nullable: true
+        property_type:
+          type: string
+          minLength: 1
+          maxLength: 50
+        guest_capacity:
+          type: integer
+          minimum: 1
+        bedrooms:
+          type: integer
+          minimum: 0
+        beds:
+          type: integer
+          minimum: 1
+        bathrooms:
+          type: integer
+          minimum: 1
+        amenities:
+          type: string
+          maxLength: 1000
+          nullable: true
+        base_price_per_night:
+          type: number
+          minimum: 0
+        currency:
+          type: string
+          minLength: 3
+          maxLength: 3
+        has_power_backup:
+          type: boolean
+        has_water_tank:
+          type: boolean
+        house_rules:
+          type: string
+          maxLength: 1000
+          nullable: true
+        cancellation_policy:
+          type: string
+          enum:
+            - flexible
+            - moderate
+            - strict
+        instant_book:
+          type: boolean
+        is_active:
+          type: boolean
+      required:
+        - property_id
+    PropertyPhoto:
+      type: object
+      properties:
+        photo_id:
+          type: string
+        property_id:
+          type: string
+        photo_url:
+          type: string
+          format: uri
+        caption:
+          type: string
+          nullable: true
+        display_order:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+      required:
+        - photo_id
+        - property_id
+        - photo_url
+        - display_order
+        - created_at
+    CreatePropertyPhotoInput:
+      type: object
+      properties:
+        property_id:
+          type: string
+          minLength: 1
+        photo_url:
+          type: string
+          format: uri
+          minLength: 1
+        caption:
+          type: string
+          maxLength: 255
+          nullable: true
+        display_order:
+          type: integer
+          minimum: 0
+      required:
+        - property_id
+        - photo_url
+        - display_order
+    UpdatePropertyPhotoInput:
+      type: object
+      properties:
+        photo_id:
+          type: string
+        property_id:
+          type: string
+        photo_url:
+          type: string
+          format: uri
+          minLength: 1
+        caption:
+          type: string
+          maxLength: 255
+          nullable: true
+        display_order:
+          type: integer
+          minimum: 0
+      required:
+        - photo_id
+    PropertyAvailability:
+      type: object
+      properties:
+        availability_id:
+          type: string
+        property_id:
+          type: string
+        date:
+          type: string
+          format: date
+        is_available:
+          type: boolean
+        price_override:
+          type: number
+          nullable: true
+      required:
+        - availability_id
+        - property_id
+        - date
+        - is_available
+    CreatePropertyAvailabilityInput:
+      type: object
+      properties:
+        property_id:
+          type: string
+          minLength: 1
+        date:
+          type: string
+          format: date
+        is_available:
+          type: boolean
+          default: true
+        price_override:
+          type: number
+          minimum: 0
+          nullable: true
+      required:
+        - property_id
+        - date
+    UpdatePropertyAvailabilityInput:
+      type: object
+      properties:
+        availability_id:
+          type: string
+        property_id:
+          type: string
+        date:
+          type: string
+          format: date
+        is_available:
+          type: boolean
+        price_override:
+          type: number
+          minimum: 0
+          nullable: true
+      required:
+        - availability_id
+    Booking:
+      type: object
+      properties:
+        booking_id:
+          type: string
+        property_id:
+          type: string
+        guest_id:
+          type: string
+        host_id:
+          type: string
+        check_in:
+          type: string
+          format: date
+        check_out:
+          type: string
+          format: date
+        guest_count:
+          type: integer
+        total_price:
+          type: number
+        service_fee:
+          type: number
+        special_requests:
+          type: string
+          nullable: true
+        status:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+        - booking_id
+        - property_id
+        - guest_id
+        - host_id
+        - check_in
+        - check_out
+        - guest_count
+        - total_price
+        - service_fee
+        - status
+        - created_at
+        - updated_at
+    CreateBookingInput:
+      type: object
+      properties:
+        property_id:
+          type: string
+          minLength: 1
+        guest_id:
+          type: string
+          minLength: 1
+        host_id:
+          type: string
+          minLength: 1
+        check_in:
+          type: string
+          format: date
+        check_out:
+          type: string
+          format: date
+        guest_count:
+          type: integer
+          minimum: 1
+        total_price:
+          type: number
+          minimum: 0
+        service_fee:
+          type: number
+          minimum: 0
+        special_requests:
+          type: string
+          maxLength: 500
+          nullable: true
+        status:
+          type: string
+          enum:
+            - pending
+            - confirmed
+            - cancelled
+            - completed
+          default: pending
+      required:
+        - property_id
+        - guest_id
+        - host_id
+        - check_in
+        - check_out
+        - guest_count
+        - total_price
+        - service_fee
+    UpdateBookingInput:
+      type: object
+      properties:
+        booking_id:
+          type: string
+        property_id:
+          type: string
+        guest_id:
+          type: string
+        host_id:
+          type: string
+        check_in:
+          type: string
+          format: date
+        check_out:
+          type: string
+          format: date
+        guest_count:
+          type: integer
+          minimum: 1
+        total_price:
+          type: number
+          minimum: 0
+        service_fee:
+          type: number
+          minimum: 0
+        special_requests:
+          type: string
+          maxLength: 500
+          nullable: true
+        status:
+          type: string
+          enum:
+            - pending
+            - confirmed
+            - cancelled
+            - completed
+      required:
+        - booking_id
+    Conversation:
+      type: object
+      properties:
+        conversation_id:
+          type: string
+        booking_id:
+          type: string
+        guest_id:
+          type: string
+        host_id:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+        - conversation_id
+        - booking_id
+        - guest_id
+        - host_id
+        - created_at
+        - updated_at
+    CreateConversationInput:
+      type: object
+      properties:
+        booking_id:
+          type: string
+          minLength: 1
+        guest_id:
+          type: string
+          minLength: 1
+        host_id:
+          type: string
+          minLength: 1
+      required:
+        - booking_id
+        - guest_id
+        - host_id
+    UpdateConversationInput:
+      type: object
+      properties:
+        conversation_id:
+          type: string
+        booking_id:
+          type: string
+        guest_id:
+          type: string
+        host_id:
+          type: string
+      required:
+        - conversation_id
+    Message:
+      type: object
+      properties:
+        message_id:
+          type: string
+        conversation_id:
+          type: string
+        sender_id:
+          type: string
+        content:
+          type: string
+        is_read:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+      required:
+        - message_id
+        - conversation_id
+        - sender_id
+        - content
+        - is_read
+        - created_at
+    CreateMessageInput:
+      type: object
+      properties:
+        conversation_id:
+          type: string
+          minLength: 1
+        sender_id:
+          type: string
+          minLength: 1
+        content:
+          type: string
+          minLength: 1
+          maxLength: 1000
+      required:
+        - conversation_id
+        - sender_id
+        - content
+    UpdateMessageInput:
+      type: object
+      properties:
+        message_id:
+          type: string
+        conversation_id:
+          type: string
+        sender_id:
+          type: string
+        content:
+          type: string
+          minLength: 1
+          maxLength: 1000
+        is_read:
+          type: boolean
+      required:
+        - message_id
+    Review:
+      type: object
+      properties:
+        review_id:
+          type: string
+        booking_id:
+          type: string
+        property_id:
+          type: string
+        reviewer_id:
+          type: string
+        host_id:
+          type: string
+        cleanliness_rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        accuracy_rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        communication_rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        location_rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        check_in_rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        value_rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        overall_rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        comment:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+        - review_id
+        - booking_id
+        - property_id
+        - reviewer_id
+        - host_id
+        - cleanliness_rating
+        - accuracy_rating
+        - communication_rating
+        - location_rating
+        - check_in_rating
+        - value_rating
+        - overall_rating
+        - created_at
+        - updated_at
+    CreateReviewInput:
+      type: object
+      properties:
+        booking_id:
+          type: string
+          minLength: 1
+        property_id:
+          type: string
+          minLength: 1
+        reviewer_id:
+          type: string
+          minLength: 1
+        host_id:
+          type: string
+          minLength: 1
+        cleanliness_rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        accuracy_rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        communication_rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        location_rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        check_in_rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        value_rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        overall_rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        comment:
+          type: string
+          maxLength: 1000
+          nullable: true
+      required:
+        - booking_id
+        - property_id
+        - reviewer_id
+        - host_id
+        - cleanliness_rating
+        - accuracy_rating
+        - communication_rating
+        - location_rating
+        - check_in_rating
+        - value_rating
+        - overall_rating
+    UpdateReviewInput:
+      type: object
+      properties:
+        review_id:
+          type: string
+        booking_id:
+          type: string
+        property_id:
+          type: string
+        reviewer_id:
+          type: string
+        host_id:
+          type: string
+        cleanliness_rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        accuracy_rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        communication_rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        location_rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        check_in_rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        value_rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        overall_rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        comment:
+          type: string
+          maxLength: 1000
+          nullable: true
+      required:
+        - review_id
+    Notification:
+      type: object
+      properties:
+        notification_id:
+          type: string
+        user_id:
+          type: string
+        type:
+          type: string
+        title:
+          type: string
+        message:
+          type: string
+        related_entity_type:
+          type: string
+          nullable: true
+        related_entity_id:
+          type: string
+          nullable: true
+        is_read:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+      required:
+        - notification_id
+        - user_id
+        - type
+        - title
+        - message
+        - is_read
+        - created_at
+    CreateNotificationInput:
+      type: object
+      properties:
+        user_id:
+          type: string
+          minLength: 1
+        type:
+          type: string
+          minLength: 1
+          maxLength: 50
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+        message:
+          type: string
+          minLength: 1
+          maxLength: 1000
+        related_entity_type:
+          type: string
+          maxLength: 50
+          nullable: true
+        related_entity_id:
+          type: string
+          maxLength: 100
+          nullable: true
+        is_read:
+          type: boolean
+          default: false
+      required:
+        - user_id
+        - type
+        - title
+        - message
+    UpdateNotificationInput:
+      type: object
+      properties:
+        notification_id:
+          type: string
+        user_id:
+          type: string
+        type:
+          type: string
+          minLength: 1
+          maxLength: 50
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+        message:
+          type: string
+          minLength: 1
+          maxLength: 1000
+        related_entity_type:
+          type: string
+          maxLength: 50
+          nullable: true
+        related_entity_id:
+          type: string
+          maxLength: 100
+          nullable: true
+        is_read:
+          type: boolean
+      required:
+        - notification_id
