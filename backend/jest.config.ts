@@ -12,9 +12,7 @@ module.exports = {
       "statements": 80
     }
   },
-  "setupFilesAfterEnv": [
-    "./tests/setup.js"
-  ],
+  "setupFilesAfterEnv": [],
   "testPathIgnorePatterns": [
     "/node_modules/",
     "/dist/"
