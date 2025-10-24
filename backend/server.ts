@@ -135,6 +135,7 @@ function createErrorResponse(
 const allowedOrigins = [
   process.env.FRONTEND_URL || 'https://123airbnb-but-just-for-libya.launchpulse.ai',
   'http://localhost:5173',
+  'http://localhost:5174',
   'http://localhost:3000',
   'https://123airbnb-but-just-for-libya.launchpulse.ai'
 ];
