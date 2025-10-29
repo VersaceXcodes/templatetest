@@ -43,6 +43,10 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "apiUrl": "https://123templatetest-api.launchpulse.ai",
+      "frontendUrl": "https://123templatetest.launchpulse.ai"
     }
   }
 }

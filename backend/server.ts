@@ -133,11 +133,13 @@ function createErrorResponse(
 
 // CORS configuration
 const allowedOrigins = [
-  process.env.FRONTEND_URL || 'https://123airbnb-but-just-for-libya.launchpulse.ai',
+  'https://123templatetest.launchpulse.ai',
+  'https://123expo-test.launchpulse.ai',
   'http://localhost:5173',
   'http://localhost:5174',
   'http://localhost:3000',
-  'https://123airbnb-but-just-for-libya.launchpulse.ai'
+  'https://123airbnb-but-just-for-libya.launchpulse.ai',
+  ...(process.env.FRONTEND_URL ? [process.env.FRONTEND_URL] : [])
 ];
 
 const io = new Server(server, {
@@ -395,8 +397,13 @@ Token verification endpoint
 Validates JWT token and returns user information
 */
 app.get('/api/auth/verify', authenticateToken, (req, res) => {
+  // Get the token from the authorization header
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+  
   res.json({
     user: req.user,
+    token: token,
     valid: true
   });
 });
